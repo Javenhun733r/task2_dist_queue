@@ -1,31 +1,62 @@
-import json
-import http
-from multiprocessing import Process
+from flask import Flask, render_template, request, jsonify, json
+import requests
+
+app = Flask(__name__)
+AMOUNT_OF_ROOTS = 1
 
 
-class Contol_Node:
-    def __init__(self, data):
-        self.data = data
-        self.node_list = {}
+class Master_Node():
+    def __init__(self, data_nodes=[]):
+        self.data_nodes = data_nodes
 
-    def add_node(self, ip, adress):
-        self.node_list.update(json.dumps({ip: adress}))
+    def add_node(self, node):
+        self.data_nodes.append(node)
+
+    def remove_node(self, adress):
+        self.data_nodes.pop(adress)
+
     def get_stats(self):
-        pass
+        all_data = []
 
-    def remove_node(self, ip):
-        self.node_list.pop(ip)
-    def save_data_of_nodes(self):
-        with open("date_nodes.txt", "a") as file1:
-            file1.write(self.node_list)
-
-def start_server(server_address):
-    my_server = http.server.ThreadingHTTPServer(server_address, Contol_Node)
-    print(str(server_address) + ' Waiting for POST requests...')
-    my_server.serve_forever()
+        for node in self.data_nodes:
+            lenght = requests.get(node).json()
+            lenght = lenght.get('lenght')
+            all_data.append([node, lenght])
+        return all_data
 
 
-def start_local_server_on_port(port):
-    p = Process(target=start_server, args=(('127.0.0.1', port),))
-    p.start()
-start_local_server_on_port(8011)
+master_node = Master_Node()
+list_of_nodes = []
+for i in range(1, AMOUNT_OF_ROOTS + 1):
+    list_of_nodes.append(f'http://127.0.0.1:500{i}/')
+
+@app.route('/index', methods=['GET', 'POST'])
+def index():
+    return render_template('index.html')
+
+
+@app.route('/add_page', methods=['GET', 'POST'])
+def add_page():
+    if request.method == 'GET':
+        if len(master_node.data_nodes) <= AMOUNT_OF_ROOTS:
+            master_node.add_node(list_of_nodes[0])
+            list_of_nodes.pop(0)
+        print(master_node.data_nodes)
+    return json.dumps({'status': 'OK', 'user': 'me', 'info': request.args});
+
+
+
+
+
+
+@app.route('/stats_page', methods=['GET', 'POST'])
+def stats_page():
+    if request.method == 'GET':
+        return jsonify(isError=False,
+                       message="Success",
+                       statusCode=200,
+                       data=master_node.get_stats())
+
+
+if __name__ == '__main__':
+    app.run(port='5000')
