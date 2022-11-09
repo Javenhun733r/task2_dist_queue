@@ -3,14 +3,6 @@ import requests
 import json
 
 
-class ErrorCode(Exception):
-    def __init___(self, status_code):
-        self.status_code = status_code
-
-    def __str__(self):
-        return f'Error code {self.status_code}'
-
-
 class Client:
     def __init__(self, adress, requests_count=1000):
         self.adress = adress
@@ -32,6 +24,5 @@ class Client:
 
     def write(self, message):
         self.update_stats()
-        r = requests.post(self.free_node + '/writemessage', data=json.dumps(message))
-        if r.status_code > 400:
-            raise ErrorCode(r.status_code)
+        requests.post(self.free_node + '/writemessage', data=json.dumps(message))
+
