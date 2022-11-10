@@ -38,7 +38,7 @@ def index():
 @app.route('/add_node', methods=['GET', 'POST'])
 def add_node():
     if request.method == 'GET':
-        if len(master_node.data_nodes) <= AMOUNT_OF_ROOTS:
+        if len(control_node.data_nodes) <= AMOUNT_OF_ROOTS:
             control_node.add_node(list_of_nodes[0])
             list_of_nodes.pop(0)
         print(control_node.data_nodes)
