@@ -35,7 +35,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/add_page', methods=['GET', 'POST'])
+@app.route('/add_node', methods=['GET', 'POST'])
 def add_node():
     if request.method == 'GET':
         if len(master_node.data_nodes) <= AMOUNT_OF_ROOTS:
