@@ -5,7 +5,7 @@ app = Flask(__name__)
 AMOUNT_OF_ROOTS = 1
 
 
-class Master_Node():
+class Control_Node():
     def __init__(self, data_nodes=[]):
         self.data_nodes = data_nodes
 
@@ -25,7 +25,7 @@ class Master_Node():
         return all_data
 
 
-master_node = Master_Node()
+control_node = Control_Node()
 list_of_nodes = []
 for i in range(1, AMOUNT_OF_ROOTS + 1):
     list_of_nodes.append(f'http://127.0.0.1:500{i}/')
@@ -36,12 +36,12 @@ def index():
 
 
 @app.route('/add_page', methods=['GET', 'POST'])
-def add_page():
+def add_node():
     if request.method == 'GET':
         if len(master_node.data_nodes) <= AMOUNT_OF_ROOTS:
-            master_node.add_node(list_of_nodes[0])
+            control_node.add_node(list_of_nodes[0])
             list_of_nodes.pop(0)
-        print(master_node.data_nodes)
+        print(control_node.data_nodes)
     return json.dumps({'status': 'OK', 'user': 'me', 'info': request.args});
 
 
@@ -55,7 +55,7 @@ def stats_page():
         return jsonify(isError=False,
                        message="Success",
                        statusCode=200,
-                       data=master_node.get_stats())
+                       data=control_node.get_stats())
 
 
 if __name__ == '__main__':
